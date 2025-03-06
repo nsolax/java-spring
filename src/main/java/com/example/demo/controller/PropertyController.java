@@ -9,8 +9,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 public class PropertyController {
@@ -19,7 +25,10 @@ public class PropertyController {
     private PropertyRepository propertyRepository;
 
     @Autowired
-    private UserService userService; // Inject UserService
+    private UserService userService;
+
+    // Define upload directory relative to project root
+    private static final String UPLOAD_DIR = "uploads"; // Will resolve to <project_root>/uploads/
 
     @GetMapping("/")
     public String home(Model model) {
@@ -40,15 +49,51 @@ public class PropertyController {
     }
 
     @PostMapping("/add-property")
-    public String addProperty(@ModelAttribute Property property, Authentication authentication) {
-        String username = authentication.getName(); // Get the logged-in username
-        User host = userService.findByUsername(username); // Fetch the User entity
-        if (host == null) {
-            throw new RuntimeException("Host not found for username: " + username);
+    public String addProperty(@ModelAttribute Property property,
+                              @RequestParam("coverImage") MultipartFile coverImage,
+                              Authentication authentication,
+                              Model model) {
+        try {
+            // Set the host
+            String username = authentication.getName();
+            User host = userService.findByUsername(username);
+            if (host == null) {
+                throw new RuntimeException("Host not found for username: " + username);
+            }
+            property.setHost(host);
+
+            // Handle file upload
+            if (!coverImage.isEmpty()) {
+                String contentType = coverImage.getContentType();
+                if (contentType == null || !contentType.startsWith("image/")) {
+                    model.addAttribute("error", "Please upload an image file.");
+                    return "add-property";
+                }
+
+                // Use absolute path based on project root
+                String projectRoot = System.getProperty("user.dir"); // Gets project root
+                Path uploadPath = Paths.get(projectRoot, UPLOAD_DIR); // <project_root>/uploads/
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+
+                // Save the file
+                String fileName = UUID.randomUUID() + "_" + coverImage.getOriginalFilename();
+                Path filePath = uploadPath.resolve(fileName);
+                coverImage.transferTo(filePath.toFile());
+                property.setCoverImagePath("/uploads/" + fileName); // Relative URL for web access
+            }
+
+            // Save the property
+            propertyRepository.save(property);
+            return "redirect:/";
+        } catch (IOException e) {
+            model.addAttribute("error", "Failed to upload image: " + e.getMessage());
+            return "add-property";
+        } catch (Exception e) {
+            model.addAttribute("error", "Failed to add property: " + e.getMessage());
+            return "add-property";
         }
-        property.setHost(host); // Set the User entity as the host
-        propertyRepository.save(property);
-        return "redirect:/";
     }
 
     // Existing API endpoints
