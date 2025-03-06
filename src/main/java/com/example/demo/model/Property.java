@@ -29,3 +29,4 @@ public class Property {
     public User getHost() { return host; }
     public void setHost(User host) { this.host = host; }
 }
+//updated
