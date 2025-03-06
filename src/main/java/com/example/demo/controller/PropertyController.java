@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+
 import com.example.demo.model.Property;
 import com.example.demo.model.User;
 import com.example.demo.repository.PropertyRepository;
@@ -27,8 +28,7 @@ public class PropertyController {
     @Autowired
     private UserService userService;
 
-    // Define upload directory relative to project root
-    private static final String UPLOAD_DIR = "uploads"; // Will resolve to <project_root>/uploads/
+    private static final String UPLOAD_DIR = "uploads";
 
     @GetMapping("/")
     public String home(Model model) {
@@ -54,7 +54,6 @@ public class PropertyController {
                               Authentication authentication,
                               Model model) {
         try {
-            // Set the host
             String username = authentication.getName();
             User host = userService.findByUsername(username);
             if (host == null) {
@@ -62,7 +61,6 @@ public class PropertyController {
             }
             property.setHost(host);
 
-            // Handle file upload
             if (!coverImage.isEmpty()) {
                 String contentType = coverImage.getContentType();
                 if (contentType == null || !contentType.startsWith("image/")) {
@@ -70,21 +68,18 @@ public class PropertyController {
                     return "add-property";
                 }
 
-                // Use absolute path based on project root
-                String projectRoot = System.getProperty("user.dir"); // Gets project root
-                Path uploadPath = Paths.get(projectRoot, UPLOAD_DIR); // <project_root>/uploads/
+                String projectRoot = System.getProperty("user.dir");
+                Path uploadPath = Paths.get(projectRoot, UPLOAD_DIR);
                 if (!Files.exists(uploadPath)) {
                     Files.createDirectories(uploadPath);
                 }
 
-                // Save the file
                 String fileName = UUID.randomUUID() + "_" + coverImage.getOriginalFilename();
                 Path filePath = uploadPath.resolve(fileName);
                 coverImage.transferTo(filePath.toFile());
-                property.setCoverImagePath("/uploads/" + fileName); // Relative URL for web access
+                property.setCoverImagePath("/uploads/" + fileName);
             }
 
-            // Save the property
             propertyRepository.save(property);
             return "redirect:/";
         } catch (IOException e) {
@@ -94,6 +89,13 @@ public class PropertyController {
             model.addAttribute("error", "Failed to add property: " + e.getMessage());
             return "add-property";
         }
+    }
+
+    @GetMapping("/property/{id}")
+    public String viewPropertyDetails(@PathVariable Long id, Model model) {
+        Property property = propertyRepository.findById(id).orElse(null);
+        model.addAttribute("property", property);
+        return "property-details";
     }
 
     // Existing API endpoints

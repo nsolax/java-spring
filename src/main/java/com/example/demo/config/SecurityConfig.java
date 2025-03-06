@@ -21,9 +21,9 @@ public class SecurityConfig {
         http
                 .csrf().disable()
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/search", "/register", "/login").permitAll()
+                        .requestMatchers("/", "/search", "/register", "/login", "/property/**").permitAll() // Allow property details
                         .requestMatchers("/api/users/register", "/api/properties").permitAll()
-                        .requestMatchers("/add-property").hasAuthority("ROLE_HOST") // Restrict to HOST role
+                        .requestMatchers("/add-property").hasAuthority("ROLE_HOST")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
