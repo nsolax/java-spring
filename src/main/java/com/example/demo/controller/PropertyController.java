@@ -1,11 +1,12 @@
 package com.example.demo.controller;
 
-
 import com.example.demo.model.Property;
 import com.example.demo.model.User;
 import com.example.demo.repository.PropertyRepository;
 import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,6 +33,10 @@ public class PropertyController {
 
     @GetMapping("/")
     public String home(Model model) {
+        // Fetch top 10 properties
+        Pageable topTen = PageRequest.of(0, 10); // Page 0, size 10
+        List<Property> properties = propertyRepository.findAll(topTen).getContent();
+        model.addAttribute("properties", properties);
         return "index";
     }
 
@@ -98,7 +103,6 @@ public class PropertyController {
         return "property-details";
     }
 
-    // Existing API endpoints
     @PostMapping("/api/properties")
     @ResponseBody
     public Property addPropertyApi(@RequestBody Property property) {

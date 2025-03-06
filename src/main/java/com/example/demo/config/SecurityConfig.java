@@ -22,9 +22,9 @@ public class SecurityConfig {
         http
                 .csrf().disable()
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/search", "/register", "/login", "/property/**", "/book/**").permitAll()
+                        .requestMatchers("/", "/search", "/register", "/login", "/property/**", "/book/**", "/uploads/**").permitAll() // Allow uploads
                         .requestMatchers("/api/users/register", "/api/properties").permitAll()
-                        .requestMatchers("/booking-confirmation/**").authenticated() // Restrict to logged-in users
+                        .requestMatchers("/booking-confirmation/**").authenticated()
                         .requestMatchers("/add-property").hasAuthority("ROLE_HOST")
                         .anyRequest().authenticated()
                 )
