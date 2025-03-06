@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Booking App</title>
+</head>
+<body>
+<h1>Welcome to the Booking App</h1>
+<form action="/search" method="get">
+    <input type="text" name="location" placeholder="Enter location">
+    <button type="submit">Search</button>
+</form>
+<div th:if="${properties}">
+    <h2>Properties</h2>
+    <ul>
+        <li th:each="property : ${properties}" th:text="${property.name + ' - ' + property.location + ' ($' + property.pricePerNight + '/night)'}"></li>
+    </ul>
+</div>
+</body>
+</html>
