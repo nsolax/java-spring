@@ -5,6 +5,16 @@
 </head>
 <body>
 <h1>Welcome to the Booking App</h1>
+<div th:if="${#authentication != null and #authentication.authenticated}">
+    <p>Welcome, <span th:text="${#authentication.name}"></span>!
+        <a href="/logout">Logout</a></p>
+    <div th:if="${#authorization.expression('hasAuthority(''ROLE_HOST'')')}">
+        <p><a href="/add-property">Add a Property</a></p>
+    </div>
+</div>
+<div th:unless="${#authentication != null and #authentication.authenticated}">
+    <p><a href="/login">Login</a> | <a href="/register">Register</a></p>
+</div>
 <form action="/search" method="get">
     <input type="text" name="location" placeholder="Enter location">
     <button type="submit">Search</button>

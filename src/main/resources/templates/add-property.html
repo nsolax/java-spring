@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Property</title>
+</head>
+<body>
+<h1>Add a New Property</h1>
+<form th:action="@{/add-property}" th:object="${property}" method="post">
+    <label>Name:</label>
+    <input type="text" th:field="*{name}" required><br>
+    <label>Location:</label>
+    <input type="text" th:field="*{location}" required><br>
+    <label>Price per Night:</label>
+    <input type="number" th:field="*{pricePerNight}" step="0.01" required><br>
+    <button type="submit">Add Property</button>
+</form>
+<p><a href="/">Back to Home</a></p>
+</body>
+</html>
