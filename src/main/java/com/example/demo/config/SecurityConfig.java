@@ -1,10 +1,10 @@
 package com.example.demo.config;
 
-
- import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -12,15 +12,30 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable() // Optional: Disable CSRF for simplicity during development
+                .csrf().disable()
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/search").permitAll() // Allow root and search page
-                        .requestMatchers("/api/users/register", "/api/properties").permitAll() // Existing public APIs
-                        .anyRequest().authenticated() // All other endpoints require auth
+                        .requestMatchers("/", "/search", "/register", "/login").permitAll()
+                        .requestMatchers("/api/users/register", "/api/properties").permitAll()
+                        .requestMatchers("/add-property").hasAuthority("ROLE_HOST") // Restrict to HOST role
+                        .anyRequest().authenticated()
                 )
-                .httpBasic();
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/", true)
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/")
+                        .permitAll()
+                );
         return http.build();
     }
 }

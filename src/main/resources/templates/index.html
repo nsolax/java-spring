@@ -2,18 +2,72 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Booking App</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+            margin-top: 50px;
+        }
+        .card {
+            margin-bottom: 15px;
+        }
+        .search-bar {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
 </head>
 <body>
-<h1>Welcome to the Booking App</h1>
-<form action="/search" method="get">
-    <input type="text" name="location" placeholder="Enter location">
-    <button type="submit">Search</button>
-</form>
-<div th:if="${properties}">
-    <h2>Properties</h2>
-    <ul>
-        <li th:each="property : ${properties}" th:text="${property.name + ' - ' + property.location + ' ($' + property.pricePerNight + '/night)'}"></li>
-    </ul>
+<div class="container">
+    <h1 class="text-center my-4">Welcome to the Booking App</h1>
+
+    <div th:if="${#authentication != null and #authentication.authenticated}" class="text-end">
+        <p>
+            Welcome, <strong th:text="${#authentication.name}"></strong>!
+            <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+        </p>
+        <div th:if="${#authorization.expression('hasAuthority(''ROLE_HOST'')')}">
+            <a href="/add-property" class="btn btn-primary">Add a Property</a>
+        </div>
+    </div>
+
+    <div th:unless="${#authentication != null and #authentication.authenticated}" class="text-center my-3">
+        <a href="/login" class="btn btn-success">Login</a>
+        <a href="/register" class="btn btn-outline-primary">Register</a>
+    </div>
+
+    <!-- Search Form -->
+    <form action="/search" method="get" class="my-4">
+        <div class="input-group">
+            <input type="text" name="location" class="form-control" placeholder="Enter location">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
+
+    <!-- Property Listings -->
+    <div th:if="${properties}">
+        <h2 class="my-3">Available Properties</h2>
+        <div class="row">
+            <div class="col-md-6" th:each="property : ${properties}">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${property.name}"></h5>
+                        <p class="card-text">
+                            <strong>Location:</strong> <span th:text="${property.location}"></span> <br>
+                            <strong>Price:</strong> $<span th:text="${property.pricePerNight}"></span>/night
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Bootstrap JS (Optional, for interactive elements) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
