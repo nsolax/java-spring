@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+
 import java.time.LocalDate;
 
 @Entity
@@ -16,8 +17,12 @@ public class Booking {
     private User guest;
     @ManyToOne
     private Property property;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDate checkInDate;
+    private LocalDate checkOutDate;
+    private int numberOfGuests;
+
+    // Default constructor
+    public Booking() {}
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -26,8 +31,10 @@ public class Booking {
     public void setGuest(User guest) { this.guest = guest; }
     public Property getProperty() { return property; }
     public void setProperty(Property property) { this.property = property; }
-    public LocalDate getStartDate() { return startDate; }
-    public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
-    public LocalDate getEndDate() { return endDate; }
-    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
+    public LocalDate getCheckInDate() { return checkInDate; }
+    public void setCheckInDate(LocalDate checkInDate) { this.checkInDate = checkInDate; }
+    public LocalDate getCheckOutDate() { return checkOutDate; }
+    public void setCheckOutDate(LocalDate checkOutDate) { this.checkOutDate = checkOutDate; }
+    public int getNumberOfGuests() { return numberOfGuests; }
+    public void setNumberOfGuests(int numberOfGuests) { this.numberOfGuests = numberOfGuests; }
 }

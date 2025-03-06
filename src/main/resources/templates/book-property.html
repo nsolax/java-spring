@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Property</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 600px;
+            margin-top: 50px;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="text-center mb-4">Book <span th:text="${property.name}"></span></h1>
+
+    <!-- Login Prompt for Unauthenticated Users -->
+    <div th:if="${requiresLogin}" class="card p-4">
+        <div class="card-body text-center">
+            <p class="lead">Please log in or register to book this property.</p>
+            <a href="/login" class="btn btn-primary me-2">Login</a>
+            <a href="/register" class="btn btn-outline-primary me-2">Register</a>
+            <a th:href="@{/property/{id}(id=${property.id})}" class="btn btn-secondary">Back to Property Details</a>
+        </div>
+    </div>
+
+    <!-- Booking Form for Authenticated Users -->
+    <div th:unless="${requiresLogin}" class="card p-4">
+        <div class="card-body">
+            <form th:action="@{/book/{id}(id=${property.id})}" th:object="${booking}" method="post">
+                <div class="mb-3">
+                    <label for="checkInDate" class="form-label">Check-in Date</label>
+                    <input type="date" class="form-control" id="checkInDate" th:field="*{checkInDate}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="checkOutDate" class="form-label">Check-out Date</label>
+                    <input type="date" class="form-control" id="checkOutDate" th:field="*{checkOutDate}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="numberOfGuests" class="form-label">Number of Guests</label>
+                    <input type="number" class="form-control" id="numberOfGuests" th:field="*{numberOfGuests}" min="1" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Book Now</button>
+            </form>
+            <div th:if="${error}" class="alert alert-danger mt-3" role="alert" th:text="${error}"></div>
+            <a th:href="@{/property/{id}(id=${property.id})}" class="btn btn-link mt-3 d-block text-center">Back to Property Details</a>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS (for interactive components, optional) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>

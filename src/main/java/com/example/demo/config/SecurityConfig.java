@@ -6,6 +6,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -21,14 +22,15 @@ public class SecurityConfig {
         http
                 .csrf().disable()
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/search", "/register", "/login", "/property/**").permitAll() // Allow property details
+                        .requestMatchers("/", "/search", "/register", "/login", "/property/**", "/book/**").permitAll()
                         .requestMatchers("/api/users/register", "/api/properties").permitAll()
+                        .requestMatchers("/booking-confirmation/**").authenticated() // Restrict to logged-in users
                         .requestMatchers("/add-property").hasAuthority("ROLE_HOST")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/", true)
+                        .successHandler(authenticationSuccessHandler())
                         .permitAll()
                 )
                 .logout(logout -> logout
@@ -37,5 +39,17 @@ public class SecurityConfig {
                         .permitAll()
                 );
         return http.build();
+    }
+
+    @Bean
+    public AuthenticationSuccessHandler authenticationSuccessHandler() {
+        return (request, response, authentication) -> {
+            String redirect = request.getParameter("redirect");
+            if (redirect != null && !redirect.isEmpty()) {
+                response.sendRedirect(redirect);
+            } else {
+                response.sendRedirect("/");
+            }
+        };
     }
 }
